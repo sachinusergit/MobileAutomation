@@ -363,11 +363,11 @@ public class MeeshoProductPage extends BasePage {
         if (isPriceInfoIconVisible()) {
             return;
         }
-        for (int attempt = 0; attempt < 6 && !isPriceInfoIconVisible(); attempt++) {
-            swipeDown();
-        }
-        for (int attempt = 0; attempt < 3 && !isPriceInfoIconVisible(); attempt++) {
-            swipeUp();
+        // Some products show the price info icon below the image and above the
+        // size chips, so a short scroll is usually enough. Scroll until the
+        // icon is actually on screen instead of guessing a direction.
+        for (int attempt = 0; attempt < 8 && !isPriceInfoIconVisible(); attempt++) {
+            scrollSlightly();
         }
     }
 

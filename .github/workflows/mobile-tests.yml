@@ -9,19 +9,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  JAVA_HOME: 'C:\Users\sachi\.jdks\openjdk-27'
-  ANDROID_HOME: 'C:\Users\sachi\AppData\Local\Android\Sdk'
-  ANDROID_SDK_ROOT: 'C:\Users\sachi\AppData\Local\Android\Sdk'
-  ADB: 'C:\Users\sachi\AppData\Local\Android\Sdk\platform-tools\adb.exe'
-
 jobs:
   compile:
     name: Compile
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - name: Set up JDK
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -33,10 +28,16 @@ jobs:
     name: Android tests (self-hosted OPPO)
     runs-on: [ self-hosted, windows, mobile-automation ]
     timeout-minutes: 60
+    env:
+      JAVA_HOME: 'C:\Users\sachi\.jdks\openjdk-27'
+      ANDROID_HOME: 'C:\Users\sachi\AppData\Local\Android\Sdk'
+      ANDROID_SDK_ROOT: 'C:\Users\sachi\AppData\Local\Android\Sdk'
+      ADB: 'C:\Users\sachi\AppData\Local\Android\Sdk\platform-tools\adb.exe'
+      PATH: 'C:\Users\sachi\.jdks\openjdk-27\bin;C:\Users\sachi\AppData\Roaming\npm;C:\Windows\System32;C:\Windows\SysWOW64;C:\Windows;C:\Windows\System32\WindowsPowerShell\v1.0'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: adb start server and list devices
         shell: cmd
@@ -47,32 +48,41 @@ jobs:
       - name: Run smoke suite on the phone
         shell: cmd
         run: |
-          mvnw.cmd -B test -Pandroid -DsuiteXmlFile=src/test/resources/suites/testng-e2e-smoke.xml -Dvideo.recording.enabled=false -Dmaven.test.failure.ignore=true
+          mvnw.cmd -B verify -Pandroid -DsuiteXmlFile=src/test/resources/suites/testng-e2e-smoke.xml -Dvideo.recording.enabled=false -Dmaven.test.failure.ignore=true
+
+      - name: Upload surefire reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
+          retention-days: 14
 
       - name: Upload Allure results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: allure-results
           path: target/allure-results
           retention-days: 14
 
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: allure-report
+          path: target/site/allure-maven-plugin
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Upload test evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-evidence
           path: |
             target/screenshots
             target/logs
             target/surefire-reports
+          if-no-files-found: warn
           retention-days: 14
-
-      - name: Publish TestNG report
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: TestNG Smoke Suite
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
-          fail-on-error: false
