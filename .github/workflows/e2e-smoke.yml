@@ -1,0 +1,68 @@
+name: Meesho E2E Smoke (Self-Hosted)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_HOME: 'C:\Users\sachi\.jdks\openjdk-27'
+  ANDROID_HOME: 'C:\Users\sachi\AppData\Local\Android\Sdk'
+  ANDROID_SDK_ROOT: 'C:\Users\sachi\AppData\Local\Android\Sdk'
+  ADB_PATH: 'C:\Users\sachi\AppData\Local\Android\Sdk\platform-tools\adb.exe'
+  VIDEO_ENABLED: 'false'
+
+jobs:
+  e2e_smoke:
+    runs-on: [ self-hosted, windows, mobile-automation ]
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '27'
+
+      - name: Show device
+        run: |
+          "$ADB_PATH" start-server
+          "$ADB_PATH" devices -l
+
+      - name: Run smoke suite
+        run: .\mvnw.cmd -B test -Pandroid -DsuiteXmlFile=src/test/resources/suites/testng-e2e-smoke.xml -Dvideo.recording.enabled=%VIDEO_ENABLED% -Dmaven.test.failure.ignore=true
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-smoke
+          path: target/allure-results
+          retention-days: 14
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-evidence-smoke
+          path: |
+            target/screenshots
+            target/logs
+            target/surefire-reports
+          retention-days: 14
+
+      - name: Publish TestNG report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: TestNG Smoke Suite
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
