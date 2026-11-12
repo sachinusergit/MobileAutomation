@@ -4,25 +4,16 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-    inputs:
-      suite:
-        description: TestNG suite file
-        required: false
-        default: src/test/resources/suites/testng-e2e-smoke.xml
-      environment:
-        description: Configuration environment
-        required: false
-        default: dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  JAVA_HOME: 'C:\\Users\\sachi\\.jdks\\openjdk-27'
-  ANDROID_HOME: 'C:\\Users\\sachi\\AppData\\Local\\Android\\Sdk'
-  ANDROID_SDK_ROOT: 'C:\\Users\\sachi\\AppData\\Local\\Android\\Sdk'
-  ADB: 'C:\\Users\\sachi\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe'
+  JAVA_HOME: 'C:\Users\sachi\.jdks\openjdk-27'
+  ANDROID_HOME: 'C:\Users\sachi\AppData\Local\Android\Sdk'
+  ANDROID_SDK_ROOT: 'C:\Users\sachi\AppData\Local\Android\Sdk'
+  ADB: 'C:\Users\sachi\AppData\Local\Android\Sdk\platform-tools\adb.exe'
 
 jobs:
   compile:
@@ -42,22 +33,21 @@ jobs:
     name: Android tests (self-hosted OPPO)
     runs-on: [ self-hosted, windows, mobile-automation ]
     timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: adb — start server and list devices
-        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: adb start server and list devices
+        shell: cmd
         run: |
-          & "$env:ADB" start-server
-          & "$env:ADB" devices -l
+          "%ADB%" start-server
+          "%ADB%" devices -l
 
       - name: Run smoke suite on the phone
-        shell: pwsh
+        shell: cmd
         run: |
-          .\mvnw.cmd -B test -Pandroid `
-            "-DsuiteXmlFile=src/test/resources/suites/testng-e2e-smoke.xml" `
-            "-Dvideo.recording.enabled=false" `
-            "-Dmaven.test.failure.ignore=true"
+          mvnw.cmd -B test -Pandroid -DsuiteXmlFile=src/test/resources/suites/testng-e2e-smoke.xml -Dvideo.recording.enabled=false -Dmaven.test.failure.ignore=true
 
       - name: Upload Allure results
         if: always()
