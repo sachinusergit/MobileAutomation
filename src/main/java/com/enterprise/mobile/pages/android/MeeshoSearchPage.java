@@ -19,7 +19,7 @@ public class MeeshoSearchPage extends BasePage {
     private static final By SEARCH_BAR =
             AppiumBy.id("com.meesho.supply:id/query_edit_text");
     private static final By SUGGESTION =
-            AppiumBy.id("com.meesho.supply:id/list_item_title");
+            AppiumBy.id("com.meesho.supply:id/auto_complete_list_item");
 
     public MeeshoSearchPage(AppiumDriver driver) {
         super(driver);
@@ -75,7 +75,8 @@ public class MeeshoSearchPage extends BasePage {
                 if (!row.isDisplayed()) {
                     continue;
                 }
-                String text = row.getText().trim();
+                String text = row.findElement(
+                        AppiumBy.id("com.meesho.supply:id/list_item_title")).getText().trim();
                 if (!text.isEmpty() && !suggestions.contains(text)) {
                     suggestions.add(text);
                 }
@@ -98,7 +99,9 @@ public class MeeshoSearchPage extends BasePage {
                             + " is not available");
         }
         WebElement chosen = rows.get(index);
-        log.info("Tapping suggestion '{}'", chosen.getText().trim());
+        String text = chosen.findElement(
+                AppiumBy.id("com.meesho.supply:id/list_item_title")).getText().trim();
+        log.info("Tapping suggestion '{}'", text);
         clickForcefully(chosen);
         return this;
     }
