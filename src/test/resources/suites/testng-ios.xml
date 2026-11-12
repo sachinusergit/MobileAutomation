@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="iOS Mobile Suite" verbose="1" parallel="false">
+
+    <listeners>
+        <listener class-name="com.enterprise.mobile.listeners.TestListener"/>
+        <listener class-name="com.enterprise.mobile.listeners.RetryAnnotationTransformer"/>
+    </listeners>
+
+    <test name="iOS Settings Tests">
+        <classes>
+            <class name="com.enterprise.mobile.bdd.runner.CucumberIosTestNG"/>
+        </classes>
+    </test>
+
+</suite>

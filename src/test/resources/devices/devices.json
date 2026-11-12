@@ -1,0 +1,33 @@
+[
+  {
+    "name": "Android Emulator 1",
+    "platform": "android",
+    "platformVersion": "14",
+    "udid": "emulator-5554",
+    "automationName": "UiAutomator2"
+  },
+  {
+    "name": "Android Emulator 2",
+    "platform": "android",
+    "platformVersion": "14",
+    "udid": "emulator-5556",
+    "automationName": "UiAutomator2"
+  },
+  {
+    "name": "OPPO A54",
+    "platform": "android",
+    "automationName": "UiAutomator2"
+  },
+  {
+    "name": "Android Real Device",
+    "platform": "android",
+    "platformVersion": "14",
+    "automationName": "UiAutomator2"
+  },
+  {
+    "name": "iPhone 15",
+    "platform": "ios",
+    "platformVersion": "17.5",
+    "automationName": "XCUITest"
+  }
+]

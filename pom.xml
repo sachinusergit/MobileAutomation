@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.enterprise.automation</groupId>
+    <artifactId>mobile-automation-framework</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Enterprise Mobile Automation Framework</name>
+    <description>Enterprise-grade Appium automation framework for Android and iOS</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+
+        <!-- Dependency versions -->
+        <appium.java.client.version>10.1.1</appium.java.client.version>
+        <testng.version>7.10.2</testng.version>
+        <cucumber.version>7.20.1</cucumber.version>
+        <allure.version>2.29.1</allure.version>
+        <allure.commandline.version>2.29.0</allure.commandline.version>
+        <jackson.version>2.18.2</jackson.version>
+        <assertj.version>3.26.3</assertj.version>
+        <logback.version>1.5.16</logback.version>
+        <slf4j.version>2.0.16</slf4j.version>
+
+        <!-- Runtime configuration -->
+        <env>dev</env>
+        <platform>android</platform>
+        <suiteXmlFile>src/test/resources/suites/testng-android.xml</suiteXmlFile>
+        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+
+        <!-- Plugin versions -->
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
+        <maven.enforcer.plugin.version>3.5.0</maven.enforcer.plugin.version>
+        <allure.maven.plugin.version>2.15.0</allure.maven.plugin.version>
+    </properties>
+
+    <dependencies>
+        <!-- Appium / Selenium client -->
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <version>${appium.java.client.version}</version>
+        </dependency>
+
+        <!-- Test framework -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+        </dependency>
+
+        <!-- BDD: Cucumber for JVM -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Allure commons: annotations + Allure API used by listeners/utils -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-java-commons</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- Allure reporting integration for Cucumber 7 -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JSON test data / device registry -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Fluent assertions -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Logging facade + implementation -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>mobile-automation-framework</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-toolchain</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[3.9.0,)</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <systemPropertyVariables>
+                        <env>${env}</env>
+                        <platform>${platform}</platform>
+                        <allure.results.directory>${allure.results.directory}</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure.maven.plugin.version}</version>
+                <configuration>
+                    <reportVersion>${allure.commandline.version}</reportVersion>
+                    <resultsDirectory>${allure.results.directory}</resultsDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>allure-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>android</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-android.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>meesho</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-meesho.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>ios</id>
+            <properties>
+                <env>ios</env>
+                <platform>ios</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-ios.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>smoke</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-smoke.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>regression</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-regression.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>parallel</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-parallel.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>all</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-all.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>e2e</id>
+            <properties>
+                <env>dev</env>
+                <platform>android</platform>
+                <suiteXmlFile>src/test/resources/suites/testng-e2e.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <!--
+            Runs every Meesho Supply test case in one command: the Meesho
+            launch/sign-up scenarios plus the end-to-end purchase journey.
+            The built-in Settings demo is intentionally NOT included; run it
+            separately with -Psettings when needed. The implicit default-test
+            execution is disabled; each suite runs in its own surefire
+            execution with its own reports.
+            Add -Dmaven.test.failure.ignore=true to keep going after a failing
+            suite instead of stopping the build.
+        -->
+        <profile>
+            <id>all-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <configuration>
+                                    <skipTests>true</skipTests>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>all-android</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <suiteXmlFiles combine.self="override">
+                                        <suiteXmlFile>src/test/resources/suites/testng-all.xml</suiteXmlFile>
+                                    </suiteXmlFiles>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports/all</reportsDirectory>
+                                    <systemPropertyVariables>
+                                        <env>dev</env>
+                                        <platform>android</platform>
+                                        <allure.results.directory>${allure.results.directory}</allure.results.directory>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>meesho-e2e</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <suiteXmlFiles combine.self="override">
+                                        <suiteXmlFile>src/test/resources/suites/testng-e2e.xml</suiteXmlFile>
+                                    </suiteXmlFiles>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports/e2e</reportsDirectory>
+                                    <systemPropertyVariables>
+                                        <env>dev</env>
+                                        <platform>android</platform>
+                                        <allure.results.directory>${allure.results.directory}</allure.results.directory>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

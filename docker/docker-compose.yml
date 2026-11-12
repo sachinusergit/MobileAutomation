@@ -1,0 +1,20 @@
+# Appium server for local/CI use. The official image listens on 4723.
+#
+#   docker compose -f docker/docker-compose.yml up -d
+#
+# For Android devices connected to the host, the container needs access to the
+# host ADB server. On Linux use `network_mode: host` and point the framework at
+# http://127.0.0.1:4723. On Windows/macOS publish the port as below and run
+# `adb -a nodaemon server` on the host, then `adb connect host.docker.internal:5037`
+# from inside the container (or use a device farm instead).
+services:
+  appium:
+    image: appium/appium:latest
+    container_name: enterprise-appium
+    restart: unless-stopped
+    ports:
+      - "4723:4723"
+    environment:
+      - APPIUM_LOG_LEVEL=info
+    volumes:
+      - ./apps:/apps:ro
